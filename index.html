@@ -10,6 +10,7 @@
 <div id = "panel" class="panel">
 <div>
 <p id ="nickname">NICK NAME : Veysel</p>
+  <p id ="adminname">NICK NAME : Veysel</p>
 </div>
 <div class = "kart_div">
 <table class = "kart">
@@ -128,6 +129,18 @@ font-size:45px;
   .panel {
     display: none;
   }
+  .kullaniciList{
+    width: 200px;
+    float: right;
+  }
+  .kullaniciList table {
+    background: brown;
+    width: 100%;
+  }
+
+  .kullaniciList table td{
+    background: aqua;
+  }
 </style>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -146,6 +159,9 @@ var tombala = null;
 var admin = null;
 var socket = io();
 var myNick = null;
+var room = getRequests().room;
+
+console.log(room);
 
 function girisYap(){
   console.log( $('#kullaniciAdi').val());
@@ -166,8 +182,9 @@ function girisYap(){
 }
 
 socket.on('usernames', function(data){
-    admin = data[i];
-    var kullaniciTablo = "<p>kullanici:</p> <table> <tr> <td>Sıra</td> <td>Nick</td> </tr> ";
+    admin = data[0];
+    document.getElementById("adminname").innerHTML ="admin  :  "+admin;
+    var kullaniciTablo = "<p>Akktif Kullanıcılar </p> <table> <tr> <td>Sıra</td> <td>Nick</td> </tr> ";
   for(i=0;i<data.length;i++) {
    kullaniciTablo = kullaniciTablo + "<tr> <td>"+(i+1)+"</td><td>"+data[i]+"</td></tr>"
   }
@@ -178,9 +195,22 @@ socket.on('usernames', function(data){
 
 socket.on('tombala', function(data){
   msg = data;
-  console.log(data)
-  sayiIsle(msg);
+  var msg_tur =msg.split("%*%")[0];
+  var msg_deger =msg.split("%*%")[1];
+  if (msg_tur === "sayi_cek") {
+    console.log(data)
+    sayiIsle(parseInt(msg_deger));
+  }
 });
+function getRequests() {
+  var s1 = location.search.substring(1, location.search.length).split('&'),
+          r = {}, s2, i;
+  for (i = 0; i < s1.length; i += 1) {
+    s2 = s1[i].split('=');
+    r[decodeURIComponent(s2[0]).toLowerCase()] = decodeURIComponent(s2[1]);
+  }
+  return r;
+};
 
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
@@ -206,7 +236,7 @@ function sayiCek() {
   	while(true){  
 	cikan_sayi = getRndInteger(1,99);
 	if (cikanSayilar.indexOf(cikan_sayi) == -1){
-      socket.emit('tombala', cikan_sayi);
+      socket.emit('tombala', "sayi_cek%*%"+cikan_sayi);
 	break;
 	}
   }} else {
@@ -223,7 +253,7 @@ function sayiIsle(sayi){
 function ekranYaz(){
 
 	var cikanTablo = "<p>Çıkan Sayılar:</p> <table> <tr> <td>Sıra</td> <td>Sayı</td> </tr> ";
-	for (var i = 0; i < cikanSayiListSize; i++){
+	for (var i = cikanSayiListSize-1; i >= 0; i--){
 	 cikanTablo = cikanTablo + "<tr> <td>" + (i+1) + "</td> <td>"+ cikanSayilar[i] +"</td> </tr>" ;
 	}
 	cikanTablo = cikanTablo + " </table> ";
