@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div id="login">
+  <input id="kullaniciAdi" autocomplete="off"/>
+  <button onclick="girisYap()">Giriş Yap</button>
+  <div id='hata'></div>
+</div>
+
+<div id = "panel" class="panel">
+<div>
+<p id ="nickname">NICK NAME : Veysel</p>
+</div>
+<div class = "kart_div">
+<table class = "kart">
+  <tr>
+    <th id="th0" class="numberY" onclick = "sayiVarTik(0)">1</th>
+    <th></th>
+    <th id="th1" class="numberY" onclick = "sayiVarTik(1)">2</th>
+	 <th></th>
+    <th id="th2" class="numberY" onclick = "sayiVarTik(2)">3</th>
+    <th></th>
+	 <th id="th3" class="numberY" onclick = "sayiVarTik(3)">4</th>
+    <th></th>
+    <th id="th4" class="numberY" onclick = "sayiVarTik(4)">5</th>
+  </tr>
+  <tr>
+    <th></th>
+    <th id="th5" class="numberY" onclick = "sayiVarTik(5)">1</th>
+    <th></th>
+	<th id="th6" class="numberY" onclick = "sayiVarTik(6)">2</th>
+    <th id="th7" class="numberY" onclick = "sayiVarTik(7)">3</th>
+    <th></th>
+	<th id="th8" class="numberY" onclick = "sayiVarTik(8)">4</th>
+    <th></th>
+    <th id="th9" class="numberY" onclick = "sayiVarTik(9)">5</th>
+  </tr>
+  <tr>
+     <th id="th10" class="numberY" onclick = "sayiVarTik(10)">1</th>
+    <th></th>
+    <th id="th11" class="numberY" onclick = "sayiVarTik(11)">2</th>
+	 <th></th>
+    <th id="th12" class="numberY" onclick = "sayiVarTik(12)">3</th>
+    <th></th>
+	 <th id="th13" class="numberY" onclick = "sayiVarTik(13)">4</th>
+    <th></th>
+    <th id="th14" class="numberY" onclick = "sayiVarTik(14)">5</th>
+  </tr>
+</table>
+</div>
+
+<div class = "sonSayi">
+<p> Son Çıkan Sayı </p>
+<p class ="sonSayiYaz" id="sonSayiYaz"></p>
+</div>
+<div class ="cikanList" id='cikanList'> </div>
+  <div class="kullaniciList" id = "kullaniciList"> </div>
+<div class ="buttonlar">
+<button onclick="sayiCek()">Tombala Çek</button>
+<button onclick="sayiCek()">1. Çinko</button>
+<button onclick="sayiCek()">2. Çinko</button>
+<button onclick="sayiCek()">Tombala :)</button>
+<button onclick="sayiCek()">Kart Değiş</button>
+</div>
+<div class ="durum">
+<p id = "durumSonuc"></p>
+</div>
+</div>
+</body>
+<style>
+th{
+background :red;
+width:50px;
+height:50px;
+}
+table{
+background:green;
+}
+.numberY {
+background:yellow;
+cursor: pointer;
+}
+
+.kart_div{
+float :left;
+}
+.sonSayi{
+width: 150px;
+    height: 150px;
+    float: left;
+    background: violet;
+    text-align: center;
+    margin: 7px;
+	border: 2px solid black;
+}
+.cikanList{
+width: 150px;
+text-align:center;
+float:left;
+overflow-y: auto; 
+height:450px; 
+}
+.cikanList table{
+width : 100%;
+background-color:black;
+}
+
+.cikanList table td{
+background-color:red;
+
+}
+.buttonlar{
+    width: 100%;
+    float: left;
+    margin: 20px;
+	    margin-top: -265px;
+}
+
+.sonSayiYaz{
+font-size:45px;
+}
+.durum {
+    float: left;
+    margin-top: -240px;
+    font-size: 30px;
+    color: RED;
+}
+  .panel {
+    display: none;
+  }
+</style>
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+var genelDizi = new Array(15);
+var satir1 = new Array();
+var satir2 = new Array();
+var satir3 = new Array();
+var cikanSayilar = new Array (99);
+var cikanSayiListSize = 0;
+var cikan_sayi = 0;
+var cinko1 = null;
+var cinko2 = null;
+var tombala = null;
+var admin = null;
+var socket = io();
+var myNick = null;
+
+function girisYap(){
+  console.log( $('#kullaniciAdi').val());
+  socket.emit('new_user',  $('#kullaniciAdi').val(),function(data){
+    if(data){
+      myNick=$('#kullaniciAdi').val();
+      document.getElementById("nickname").innerText = "kullanıcı adı : "+myNick;
+      var div = document.getElementById('panel');
+      div.style.display= 'block';
+      var div2 = document.getElementById('login');
+      div2.style.display= 'none';
+
+    }else{
+      $('#hata').html('<p>bu kullanıcı adı kullanılmaktadır...</p>');
+    }
+  });
+  $('kullaniciAdi').val('');
+}
+
+socket.on('usernames', function(data){
+    admin = data[i];
+    var kullaniciTablo = "<p>kullanici:</p> <table> <tr> <td>Sıra</td> <td>Nick</td> </tr> ";
+  for(i=0;i<data.length;i++) {
+   kullaniciTablo = kullaniciTablo + "<tr> <td>"+(i+1)+"</td><td>"+data[i]+"</td></tr>"
+  }
+  kullaniciTablo = kullaniciTablo +"</table>"
+  document.getElementById("kullaniciList").innerHTML = kullaniciTablo;
+});
+
+
+socket.on('tombala', function(data){
+  msg = data;
+  console.log(data)
+  sayiIsle(msg);
+});
+
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
+
+for (var i = 0; i < 15; i++) {
+	while(true){
+	var sayi = getRndInteger(1,99);
+	if (genelDizi.indexOf(sayi) == -1){
+	genelDizi[i] = sayi;
+	break;
+	}
+  }
+}
+
+for (var i = 0; i < 15; i++) {
+  document.getElementById("th"+i).innerHTML = genelDizi[i];
+
+}
+
+function sayiCek() {
+  	while(true){  
+	cikan_sayi = getRndInteger(1,99);
+	if (cikanSayilar.indexOf(cikan_sayi) == -1){
+      socket.emit('tombala', cikan_sayi);
+	break;
+	}
+  }
+}
+
+function sayiIsle(sayi){
+  cikan_sayi = sayi;
+  cikanSayilar[cikanSayiListSize] = cikan_sayi;
+  cikanSayiListSize = cikanSayiListSize + 1;
+  ekranYaz();
+}
+function ekranYaz(){
+
+	var cikanTablo = "<p>Çıkan Sayılar:</p> <table> <tr> <td>Sıra</td> <td>Sayı</td> </tr> ";
+	for (var i = 0; i < cikanSayiListSize; i++){
+	 cikanTablo = cikanTablo + "<tr> <td>" + (i+1) + "</td> <td>"+ cikanSayilar[i] +"</td> </tr>" ;
+	}
+	cikanTablo = cikanTablo + " </table> ";
+	document.getElementById("cikanList").innerHTML = cikanTablo;
+	
+	document.getElementById("sonSayiYaz").innerHTML = cikan_sayi
+}
+
+function sayiVarTik(index){
+
+	if(cikanSayilar.indexOf(genelDizi[index]) !== -1 ){
+		if((index/5) < 1){
+		if(satir1.indexOf(genelDizi[index]) == -1){
+		satir1.push(genelDizi[index]);
+		}
+		} 
+		else if((index/5) < 2){
+		if(satir2.indexOf(genelDizi[index]) == -1){
+		satir2.push(genelDizi[index]);
+		}
+		} else {
+		if(satir3.indexOf(genelDizi[index]) == -1){
+		satir3.push(genelDizi[index]);
+		}
+		}
+		document.getElementById("th"+index).style.backgroundColor ="GRAY"
+	} else {
+	 uyariYaz("Seçtiğiniz Sayi Henüz Çekilmedi !!!");
+	}
+
+}
+
+function uyariYaz(mesaj){
+
+document.getElementById("durumSonuc").innerHTML = mesaj;
+setTimeout(function(){ document.getElementById("durumSonuc").innerHTML ="" }, 1000);
+
+}
+
+</script>
+</html>
