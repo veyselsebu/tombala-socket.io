@@ -202,12 +202,15 @@ for (var i = 0; i < 15; i++) {
 }
 
 function sayiCek() {
+  if(admin === myNick){
   	while(true){  
 	cikan_sayi = getRndInteger(1,99);
 	if (cikanSayilar.indexOf(cikan_sayi) == -1){
       socket.emit('tombala', cikan_sayi);
 	break;
 	}
+  }} else {
+    uyariYaz("Yanlızca Admin Sayı çekebilir !!!");
   }
 }
 
