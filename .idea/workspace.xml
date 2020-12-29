@@ -40,17 +40,37 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1609177164373</updated>
-      <workItem from="1609177166177" duration="11498000" />
+      <workItem from="1609177166177" duration="17602000" />
     </task>
+    <task id="LOCAL-00001" summary="v3">
+      <created>1609193899864</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1609193899864</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="v3" />
+    <option name="LAST_COMMIT_MESSAGE" value="v3" />
+  </component>
   <component name="WindowStateProjectService">
+    <state x="585" y="119" key="CommitChangelistDialog2" timestamp="1609193899295">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="585" y="119" key="CommitChangelistDialog2/0.0.1920.1050@0.0.1920.1050" timestamp="1609193899295" />
     <state x="740" y="280" key="FileChooserDialogImpl" timestamp="1609177584789">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="740" y="280" key="FileChooserDialogImpl/0.0.1920.1050@0.0.1920.1050" timestamp="1609177584789" />
+    <state x="552" y="246" key="Vcs.Push.Dialog.v2" timestamp="1609193902076">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="552" y="246" key="Vcs.Push.Dialog.v2/0.0.1920.1050@0.0.1920.1050" timestamp="1609193902076" />
   </component>
 </project>

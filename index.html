@@ -16,35 +16,35 @@
 <table class = "kart">
   <tr>
     <th id="th0" class="numberY" onclick = "sayiVarTik(0)">1</th>
-    <th></th>
+    <th class="numberN"></th>
     <th id="th1" class="numberY" onclick = "sayiVarTik(1)">2</th>
-	 <th></th>
+	 <th class="numberN"></th>
     <th id="th2" class="numberY" onclick = "sayiVarTik(2)">3</th>
-    <th></th>
+    <th class="numberN"></th>
 	 <th id="th3" class="numberY" onclick = "sayiVarTik(3)">4</th>
-    <th></th>
+    <th class="numberN"></th>
     <th id="th4" class="numberY" onclick = "sayiVarTik(4)">5</th>
   </tr>
   <tr>
-    <th></th>
+    <th class="numberN"></th>
     <th id="th5" class="numberY" onclick = "sayiVarTik(5)">1</th>
-    <th></th>
+    <th class="numberN"></th>
 	<th id="th6" class="numberY" onclick = "sayiVarTik(6)">2</th>
     <th id="th7" class="numberY" onclick = "sayiVarTik(7)">3</th>
-    <th></th>
+    <th class="numberN"></th>
 	<th id="th8" class="numberY" onclick = "sayiVarTik(8)">4</th>
-    <th></th>
     <th id="th9" class="numberY" onclick = "sayiVarTik(9)">5</th>
+    <th class="numberN"></th>
   </tr>
   <tr>
      <th id="th10" class="numberY" onclick = "sayiVarTik(10)">1</th>
-    <th></th>
+    <th class="numberN"></th>
     <th id="th11" class="numberY" onclick = "sayiVarTik(11)">2</th>
-	 <th></th>
+	 <th class="numberN"></th>
     <th id="th12" class="numberY" onclick = "sayiVarTik(12)">3</th>
-    <th></th>
+    <th class="numberN"></th>
 	 <th id="th13" class="numberY" onclick = "sayiVarTik(13)">4</th>
-    <th></th>
+    <th class="numberN"></th>
     <th id="th14" class="numberY" onclick = "sayiVarTik(14)">5</th>
   </tr>
 </table>
@@ -55,13 +55,14 @@
 <p class ="sonSayiYaz" id="sonSayiYaz"></p>
 </div>
 <div class ="cikanList" id='cikanList'> </div>
-  <div class="kullaniciList" id = "kullaniciList"> </div>
-<div class ="buttonlar">
+  <div class="inf-div" id="inf-div"></div>
+  <div class="kullaniciList" id = "kullaniciList"></div>
+<div id="button-div" class ="buttonlar">
 <button onclick="sayiCek()">Tombala Çek</button>
-<button onclick="sayiCek()">1. Çinko</button>
-<button onclick="sayiCek()">2. Çinko</button>
-<button onclick="sayiCek()">Tombala :)</button>
-<button onclick="sayiCek()">Kart Değiş</button>
+<button onclick="cinko1At()">1. Çinko</button>
+<button onclick="cinko2At()">2. Çinko</button>
+<button onclick="tombalaKontrol()">Tombala :)</button>
+<button onclick="kartDegis()">Kart Değiş</button>
 </div>
 <div class ="durum">
 <p id = "durumSonuc"></p>
@@ -141,6 +142,11 @@ font-size:45px;
   .kullaniciList table td{
     background: aqua;
   }
+  .inf-div{
+    width: 150px;
+    float: left;
+    margin: 20px;
+  }
 </style>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -161,7 +167,7 @@ var socket = io();
 var myNick = null;
 var room = getRequests().room;
 
-console.log(room);
+kartDegis();
 
 function girisYap(){
   console.log( $('#kullaniciAdi').val());
@@ -198,9 +204,19 @@ socket.on('tombala', function(data){
   var msg_tur =msg.split("%*%")[0];
   var msg_deger =msg.split("%*%")[1];
   if (msg_tur === "sayi_cek") {
-    console.log(data)
     sayiIsle(parseInt(msg_deger));
+  } else if(msg_tur === "cinko1") {
+    cinko1 = msg_deger;
+    document.getElementById("inf-div").innerHTML = "<p>1. Çinko : "+ cinko1 +" </p>"
+  } else if(msg_tur === "cinko2") {
+    cinko2 = msg_deger;
+    document.getElementById("inf-div").innerHTML = "<p>1. Çinko : "+ cinko1 +" </p> <p>2. Çinko : "+ cinko2 +" </p>"
+  } else if(msg_tur === "tombala") {
+    tombala = msg_deger;
+    document.getElementById("inf-div").innerHTML = "<p>1. Çinko : "+ cinko1 +" </p> <p>2. Çinko : "+ cinko2 +" </p> <p>KAZANAN : "+ tombala +"</p>"
+    document.getElementById("button-div").style.display = "none";
   }
+
 });
 function getRequests() {
   var s1 = location.search.substring(1, location.search.length).split('&'),
@@ -215,22 +231,6 @@ function getRequests() {
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
 }
-
-for (var i = 0; i < 15; i++) {
-	while(true){
-	var sayi = getRndInteger(1,99);
-	if (genelDizi.indexOf(sayi) == -1){
-	genelDizi[i] = sayi;
-	break;
-	}
-  }
-}
-
-for (var i = 0; i < 15; i++) {
-  document.getElementById("th"+i).innerHTML = genelDizi[i];
-
-}
-
 function sayiCek() {
   if(admin === myNick){
   	while(true){  
@@ -242,6 +242,16 @@ function sayiCek() {
   }} else {
     uyariYaz("Yanlızca Admin Sayı çekebilir !!!");
   }
+}
+
+function tombalaKontrol () {
+  var size = satir1.length + satir2.length + satir3.length;
+  if (size == 15){
+    socket.emit('tombala', "tombala%*%"+myNick);
+  } else {
+    uyariYaz("Eksik Sayınız Var Tombala Yapamazsınız !!!")
+  }
+
 }
 
 function sayiIsle(sayi){
@@ -293,5 +303,99 @@ setTimeout(function(){ document.getElementById("durumSonuc").innerHTML ="" }, 10
 
 }
 
+function cinko1At() {
+
+  if (!cinko1){
+    if(cinkoSay() > 0) {
+      socket.emit('tombala', "cinko1%*%"+myNick);
+    } else {
+      uyariYaz("Eliniz Çinkoya Uygun Değil !!!");
+    }
+  } else {
+    uyariYaz("1. çinko yapılmış !!!");
+  }
+
+}
+
+function cinko2At() {
+
+  if (!cinko1) {
+    uyariYaz("1. çinko yapılmamış !!!");
+  } else {
+    if (!cinko2) {
+      if(cinkoSay() > 1) {
+        socket.emit('tombala', "cinko2%*%"+myNick);
+      } else {
+        uyariYaz("Eliniz Çinkoya Uygun Değil !!!");
+      }
+    } else {
+      uyariYaz("'2. çinko yapılmış !!!");
+    }
+  }
+
+}
+
+function kartDegis() {
+  if (cikanSayiListSize == 0){
+  for (var i = 0; i < 15; i++) {
+    while(true){
+      var sayi = getRndInteger(1,99);
+      if (genelDizi.indexOf(sayi) == -1){
+        genelDizi[i] = sayi;
+        break;
+      }
+    }
+  }
+
+  for (var i = 0; i < 15; i++) {
+    document.getElementById("th"+i).innerHTML = genelDizi[i];
+  }
+    kartRenkCon();
+  } else {
+    uyariYaz("Oyun Başladı Kart Değiştiremezsiniz !!!")
+  }
+
+}
+
+function cinkoSay () {
+  var say = 0;
+
+  if(satir1.length == 5){
+    say = say + 1;
+  }
+  if(satir2.length == 5){
+    say = say + 1;
+  }
+  if(satir3.length == 5){
+    say = say + 1;
+  }
+  return say;
+}
+function kartRenkCon() {
+        //   n , y, kart
+  renks = [["RED","YELLOW","GREEN"],
+           ["BLUE","RED","BLACK"] ,
+          ["BLUE","YELLOW","RED"] ,
+          ["GREEN","RED","BLUE"],
+          ["BLACK","WHITE","RED"],
+          ["BLACK","BLUE","GREEN"]
+  ] ;
+
+  var index = getRndInteger(0, renks.length-1);
+
+  var elements = document.getElementsByClassName('numberN'); // get all elements
+  for(var i = 0; i < elements.length; i++){
+    elements[i].style.backgroundColor = renks[index][0];
+  }
+   elements = document.getElementsByClassName('numberY'); // get all elements
+  for(var i = 0; i < elements.length; i++){
+    elements[i].style.backgroundColor = renks[index][1];
+  }
+  elements = document.getElementsByClassName('kart'); // get all elements
+  for(var i = 0; i < elements.length; i++){
+    elements[i].style.backgroundColor = renks[index][2];
+  }
+
+}
 </script>
 </html>
