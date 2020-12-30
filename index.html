@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
 <body>
+<audio id="myAudio">
+  <source src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-felix-blume/felix_blume_fireworks_celebration_new_year.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 <div id="login">
   <input id="kullaniciAdi" autocomplete="off"/>
   <button onclick="girisYap()">Giriş Yap</button>
@@ -63,10 +67,17 @@
 <button onclick="cinko2At()">2. Çinko</button>
 <button onclick="tombalaKontrol()">Tombala :)</button>
 <button onclick="kartDegis()">Kart Değiş</button>
+  <button onclick='yeniOyun()'>Yeni Oyun Başlat</button>
 </div>
 <div class ="durum">
 <p id = "durumSonuc"></p>
 </div>
+</div>
+
+<div class="bildir" id ="bildir">
+
+  <p>Birinci Çinko Veysel SEBU</p>
+
 </div>
 </body>
 <style>
@@ -99,8 +110,8 @@ width: 150px;
 width: 150px;
 text-align:center;
 float:left;
-overflow-y: auto; 
-height:450px; 
+overflow-y: auto;
+height:450px;
 }
 .cikanList table{
 width : 100%;
@@ -147,12 +158,28 @@ font-size:45px;
     float: left;
     margin: 20px;
   }
+  .bildir {
+  width: 100%; height: 100%;
+ position: absolute; top: 0; left: 0;
+    background-image: url("https://steamuserimages-a.akamaihd.net/ugc/478893369650358645/294C94C6C56CD531C52FA6BE59F8F8EEB2995768/");
+    color: white;
+    text-align: center;
+    font-size: 86px;
+    display: none;
+  }
+
+  .bildir p{
+    margin-top: 20%;
+  }
 </style>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
+
 <script>
-var genelDizi = new Array(15);
+
+  var x = document.getElementById("myAudio");
+  var genelDizi = new Array(15);
 var satir1 = new Array();
 var satir2 = new Array();
 var satir3 = new Array();
@@ -165,7 +192,20 @@ var tombala = null;
 var admin = null;
 var socket = io();
 var myNick = null;
-var room = getRequests().room;
+var name = getRequests().name;
+console.log(name);
+if(name !== "undefined"){
+  socket.emit('new_user',name,function(data){
+    if(data){
+      myNick=name;
+      document.getElementById("nickname").innerText = "kullanıcı adı : "+myNick;
+      var div = document.getElementById('panel');
+      div.style.display= 'block';
+      var div2 = document.getElementById('login');
+      div2.style.display= 'none';
+    }
+  });
+}
 
 kartDegis();
 
@@ -207,17 +247,32 @@ socket.on('tombala', function(data){
     sayiIsle(parseInt(msg_deger));
   } else if(msg_tur === "cinko1") {
     cinko1 = msg_deger;
+    bildirRun("<p> Birinci Çinko : " + msg_deger + "</p>");
     document.getElementById("inf-div").innerHTML = "<p>1. Çinko : "+ cinko1 +" </p>"
   } else if(msg_tur === "cinko2") {
     cinko2 = msg_deger;
+    bildirRun("<p> İkinci Çinko : " + msg_deger + "</p>");
     document.getElementById("inf-div").innerHTML = "<p>1. Çinko : "+ cinko1 +" </p> <p>2. Çinko : "+ cinko2 +" </p>"
   } else if(msg_tur === "tombala") {
     tombala = msg_deger;
-    document.getElementById("inf-div").innerHTML = "<p>1. Çinko : "+ cinko1 +" </p> <p>2. Çinko : "+ cinko2 +" </p> <p>KAZANAN : "+ tombala +"</p>"
+    bildirRun("<p> Tombala : " + msg_deger + "</p>");
+    document.getElementById("inf-div").innerHTML = "<p>1. Çinko : "+ cinko1 +" </p> <p>2. Çinko : "+ cinko2 +" </p> <p>KAZANAN : "+ tombala +"</p> "+
+            "<button onclick='yeniOyun()'>Yeni Oyun Başlat</button>";
     document.getElementById("button-div").style.display = "none";
+  } else if (msg_tur === "yenioyun") {
+   // window.location.hostname+"/?name ="+myNick;
+    document.location.href = "/?name="+myNick;
   }
 
 });
+
+function bildirRun(mesage) {
+  document.getElementById("bildir").innerHTML = mesage;
+  document.getElementById("bildir").style.display = "block";
+  playAudio();
+  setTimeout(function(){ document.getElementById("bildir").style.display ="none"; pauseAudio(); }, 10000);
+}
+
 function getRequests() {
   var s1 = location.search.substring(1, location.search.length).split('&'),
           r = {}, s2, i;
@@ -233,12 +288,15 @@ function getRndInteger(min, max) {
 }
 function sayiCek() {
   if(admin === myNick){
-  	while(true){  
+  	while(true){
 	cikan_sayi = getRndInteger(1,99);
 	if (cikanSayilar.indexOf(cikan_sayi) == -1){
       socket.emit('tombala', "sayi_cek%*%"+cikan_sayi);
 	break;
 	}
+	if (cikanSayiListSize  == 99){
+	  break;
+    }
   }} else {
     uyariYaz("Yanlızca Admin Sayı çekebilir !!!");
   }
@@ -268,7 +326,7 @@ function ekranYaz(){
 	}
 	cikanTablo = cikanTablo + " </table> ";
 	document.getElementById("cikanList").innerHTML = cikanTablo;
-	
+
 	document.getElementById("sonSayiYaz").innerHTML = cikan_sayi
 }
 
@@ -279,7 +337,7 @@ function sayiVarTik(index){
 		if(satir1.indexOf(genelDizi[index]) == -1){
 		satir1.push(genelDizi[index]);
 		}
-		} 
+		}
 		else if((index/5) < 2){
 		if(satir2.indexOf(genelDizi[index]) == -1){
 		satir2.push(genelDizi[index]);
@@ -347,6 +405,8 @@ function kartDegis() {
     }
   }
 
+  kartIciSirala();
+
   for (var i = 0; i < 15; i++) {
     document.getElementById("th"+i).innerHTML = genelDizi[i];
   }
@@ -370,6 +430,15 @@ function cinkoSay () {
     say = say + 1;
   }
   return say;
+}
+
+function yeniOyun() {
+  if (myNick === admin){
+    socket.emit('tombala', "yenioyun%*%"+myNick);
+  } else {
+    uyariYaz("Oyunu yanlızca admin yeniden başlatabilir...")
+  }
+
 }
 function kartRenkCon() {
         //   n , y, kart
@@ -397,5 +466,57 @@ function kartRenkCon() {
   }
 
 }
+
+
+function playAudio() {
+  x.play();
+}
+
+function pauseAudio() {
+  x.pause();
+}
+
+function kartIciSirala(){
+  var list1 = new Array(5);
+  var list2 = new Array(5);
+  var list3 = new Array(5);
+
+  console.log(list1);
+  console.log(list2);
+  console.log(list3);
+
+  for(var i= 0 ; i<5; i++){
+    list1[i] = genelDizi[i];
+    list2[i] = genelDizi[i+5];
+    list3[i] = genelDizi[i+10];
+  }
+
+
+  console.log(list1);
+  console.log(list2);
+  console.log(list3);
+
+
+  list1.sort(function(a, b) {
+    return a - b;
+  });
+  list2.sort(function(a, b) {
+    return a - b;
+  });
+  list3.sort(function(a, b) {
+    return a - b;
+  });
+
+
+  console.log(list1);
+  console.log(list2);
+  console.log(list3);
+
+  genelDizi = list1.concat(list2).concat(list3);
+
+  console.log(genelDizi);
+
+}
+
 </script>
 </html>
